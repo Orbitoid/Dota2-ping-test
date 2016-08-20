@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# This script is designed to log the ping time to the sydney valve servers
+# It also gives a very basic "Good"/"Bad" result that can be taken from the log by other scripts
+
+# Set variables
+GOOD_THRESHOLD="100"
+TIME_BETWEEN_PINGS=".5s"
+STATE="NOT TESTED YET"
+LOG_FILE="/var/log/ping_dota2_sydney.log"
+ADDRESS_TO_PING="syd.valve.net"
+MAX_LOOPS="2"
+# If the log file doesn't exist then create it.
+if [[ ! -f "${LOG_FILE}" ]]
+    then
+        touch "${LOG_FILE}"
+fi
+
+# Main loop
+i="0"
+while [ $i -lt $MAX_LOOPS ]
+    do
+        # Ping command plus some cleaning up to make sure we just get the time.
+        TIME=`ping -c 1 "${ADDRESS_TO_PING}" | grep -i "time=" |  awk '{print $8}' | sed 's/time=//' | sed 's/[.].*$//'`
+
+        # Declare the state based on the threshold
+        if [ "$TIME" -le "$GOOD_THRESHOLD"  ]
+            then
+                STATE="Good"
+            else
+                STATE="BAD"
+            fi
+
+        # If we are not in the final loop then sleep for a time
+        if [[ $i -le $MAX_LOOPS ]]
+            then
+                sleep "${TIME_BETWEEN_PINGS}"
+        fi
+
+        # Write to log
+        DATE=`date`
+        echo "$DATE : $TIME ms : $STATE" >> $LOG_FILE
+
+        # Increment the loop
+        i=$[$i+1]
+
+done

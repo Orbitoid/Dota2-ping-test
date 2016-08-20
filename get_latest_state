@@ -1,0 +1,13 @@
+#!/bin/bash
+# This script is designed to grab the most recent poll to see if the ping to dota is good (as defined by the pingdota2 script)
+
+# Set variables
+LOG_FILE="/var/log/ping_dota2_sydney.log"
+LAST_LINE=`tail -n 1 "${LOG_FILE}"`
+LAST_RESULT=`echo "${LAST_LINE}" | awk '{print $11}'`
+
+if [[ "${LAST_RESULT}" == "Good" ]]; then
+  echo "green"
+else
+  echo "red"
+fi
