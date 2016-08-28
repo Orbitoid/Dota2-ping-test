@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# This script is designed to figure out who is currently using the most bandwidth on the network
+# This will have to be run on the router of your network as it needs to be able to see all internet traffic on a host by host basis
+# It will only tell you upload/download hostname
+
+DATE=`date +%Y-%m-%d--%H-%M-%S`
+LOG_FILE="/home/orbitoid/Dota2-ping-test/IPTraf-log-$DATE.log"
+
+iptraf -l eth0 -B -t 1 -L $LOG_FILE 
+sleep 60
+USEFUL_BITS=`cat $LOG_FILE | grep -E 'address|Last 5-second rates: ' | sed 's/'outgoing'/\'$'\n/g'`
+#"kbytes/s outgoing"
+
+echo $USEFUL_BITS
+
+#while read -r line; do
+#  echo "...$line..."
+#done <<< $USEFUL_BITS
+
